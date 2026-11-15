@@ -88,6 +88,20 @@ describe("writing suggestions", () => {
     expect(parseSuggestions('[{"question":"What does a bare array hold?","answer":"Questions"}]', [], 3)).toHaveLength(1);
   });
 
+  it("keeps the good questions when the reply's JSON breaks further on", () => {
+    // a real llama3.1 reply: the second "answer" key is missing its closing quote
+    const reply =
+      '{"questions":[{"question":"What do ribosomes build in a cell?","answer":"proteins"},' +
+      '{"question":"Where are ribosomes found in a cell?","answer:"free in the cytoplasm or attached to the rough endoplasmic reticulum"}]}';
+    expect(parseSuggestions(reply, [], 2)).toEqual([{ prompt: "What do ribosomes build in a cell?", answer: "proteins" }]);
+    // one question on its own, not wrapped in a list
+    expect(parseSuggestions('{"question":"What do ribosomes read?","answer":"Messenger RNA"}', [], 2)).toEqual([
+      { prompt: "What do ribosomes read?", answer: "Messenger RNA" },
+    ]);
+    // "nothing worth asking" stays empty, even with a question-like object elsewhere in the reply
+    expect(parseSuggestions('{"questions": []} e.g. {"question":"What is an example?","answer":"This"}', [], 2)).toEqual([]);
+  });
+
   describe("for a note", () => {
     let db: Db;
     let topicId: string;
@@ -291,6 +305,70 @@ describe("choosing a model", () => {
     expect(await resolveProvider(cloud, { fetch: localDown, ...withKey, builtIn: missing })).toMatchObject({ kind: "cloud" });
     expect(await resolveProvider({ ...cloud, aiMode: "device" }, { fetch: localDown, ...withKey, builtIn: missing })).toBeNull();
     expect(await resolveProvider({ ...cloud, aiMode: "cloud" }, { fetch: localDown, ...withKey, builtIn: installed })).toMatchObject({ kind: "cloud" });
+  });
+
+  describe("starting Ollama when it is installed but not running", () => {
+    /** An Ollama that answers only after startOllama ran; `result` is what starting it reports. */
+    const ollama = (result: "start" | "missing" | "fail" = "start") => {
+      const state = { up: false, starts: 0 };
+      const fetch: FetchLike = async (url) => {
+        if (state.up && url.includes(":11434")) return json({ data: [{ id: "llama3.1:latest" }] });
+        throw new TypeError("refused");
+      };
+      const startOllama = async () => {
+        state.starts++;
+        if (result === "fail") throw new Error("Ollama stopped while starting.");
+        state.up = result === "start";
+        return state.up;
+      };
+      return { state, fetch, startOllama };
+    };
+
+    it("starts it and uses its model when nothing else is running", async () => {
+      for (const aiMode of ["auto", "device"] as const) {
+        const { state, fetch, startOllama } = ollama();
+        expect(await resolveProvider({ ...cloud, aiMode }, { fetch, ...withKey, startOllama })).toMatchObject({
+          id: "ollama",
+          kind: "local",
+          model: "llama3.1:latest",
+        });
+        expect(state.starts).toBe(1);
+        // now it is running: found directly, not started again
+        expect(await resolveProvider({ ...cloud, aiMode }, { fetch, ...withKey, startOllama })).toMatchObject({ id: "ollama" });
+        expect(state.starts).toBe(1);
+      }
+    });
+
+    it("starts it when Tutor opens, so the first request does not wait for it", async () => {
+      const { state, fetch, startOllama } = ollama();
+      const notSetUp = { installed: async () => null, start: async () => 1 };
+      // false: the built-in engine was not started
+      expect(await warmUpBuiltIn(cloud, { fetch, startOllama, builtIn: notSetUp })).toBe(false);
+      expect(state.starts).toBe(1);
+    });
+
+    it("leaves it alone when the built-in engine is set up, or AI is cloud-only or off", async () => {
+      const builtIn = { installed: async () => ({ modelName: "Qwen3 4B" }), start: async () => 1 };
+      const setUp = ollama();
+      expect(
+        await resolveProvider(cloud, { fetch: setUp.fetch, startOllama: setUp.startOllama, ...withKey, builtIn }),
+      ).toMatchObject({ id: "builtin" });
+      for (const aiMode of ["cloud", "off"] as const) {
+        const { state, fetch, startOllama } = ollama();
+        await resolveProvider({ ...cloud, aiMode }, { fetch, ...withKey, startOllama });
+        await warmUpBuiltIn({ ...cloud, aiMode }, { fetch, startOllama });
+        expect(state.starts).toBe(0);
+      }
+      expect(setUp.state.starts).toBe(0);
+    });
+
+    it("falls back as before when Ollama is not installed or fails to start", async () => {
+      for (const result of ["missing", "fail"] as const) {
+        const { fetch, startOllama } = ollama(result);
+        expect(await resolveProvider(cloud, { fetch, ...withKey, startOllama })).toMatchObject({ kind: "cloud" });
+        expect(await resolveProvider({ ...cloud, aiMode: "device" }, { fetch, ...withKey, startOllama })).toBeNull();
+      }
+    });
   });
 
   describe("starting the built-in engine when Tutor opens", () => {

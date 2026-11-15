@@ -17,6 +17,30 @@ export function extractJson(text: string): unknown {
   return null;
 }
 
+/**
+ * Every complete JSON object in the text, in order, skipping the ones that do
+ * not parse. For replies whose outer JSON is broken (a missing quote in the
+ * third item) but whose first items are fine.
+ */
+export function extractJsonObjects(text: string): Record<string, unknown>[] {
+  const found: Record<string, unknown>[] = [];
+  for (let start = 0; start < text.length; start++) {
+    if (text[start] !== "{") continue;
+    const end = matchingEnd(text, start);
+    if (end === -1) continue;
+    try {
+      const value: unknown = JSON.parse(text.slice(start, end + 1));
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        found.push(value as Record<string, unknown>);
+        start = end; // the objects inside it are already part of this one
+      }
+    } catch {
+      // broken from here; the objects nested inside may still be whole
+    }
+  }
+  return found;
+}
+
 function matchingEnd(text: string, start: number): number {
   let depth = 0;
   let inString = false;

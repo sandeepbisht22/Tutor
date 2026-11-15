@@ -96,8 +96,12 @@ Open Settings, then "AI help".
   after it opens (and again whenever it is needed), frees the model's memory after five
   idle minutes, and stops the engine when Tutor quits. "Remove the
   built-in AI" deletes it again.
-- **Ollama or LM Studio.** If one of these is already running on the computer, Tutor uses
-  its models instead of downloading anything.
+- **Ollama or LM Studio.** If one of these is on the computer, Tutor uses its models
+  instead of downloading anything. LM Studio has to be running. Ollama only has to be
+  installed: when it is not running (installed with Homebrew, or not set to open at
+  login), Tutor starts it when AI is needed and stops it again when Tutor quits. An Ollama
+  you started yourself is left alone. Ollama frees the model's memory after five idle
+  minutes.
 - **In the cloud.** Paste an API key for Claude (Anthropic) or ChatGPT (OpenAI). An API key
   is a separate pay-per-use account, not part of a Claude or ChatGPT subscription. The key
   is stored in the system keychain. When the cloud model is used, the paragraph being
@@ -134,7 +138,7 @@ The built-in AI, if you set it up, is in an `engine` folder in the app's data fo
 
 ## What has and has not been tested
 
-Tested: the logic (62 unit tests), the whole interface in a browser, and the real desktop
+Tested: the logic (83 unit tests), the whole interface in a browser, and the real desktop
 app on Linux, including the database, AI requests, the sticky window appearing on its
 timer, answering on it, and the app staying alive in the tray after the window is closed.
 
@@ -145,9 +149,19 @@ from it, and cleaned up an engine left running after a forced quit. The download
 from a local server, and the model was a tiny test model, because GitHub's release files
 and Hugging Face cannot be reached from the machine this was built on.
 
+Ollama was tested on macOS (Apple Silicon, 16 GB) with the app installed from the `.dmg`
+that `npm run tauri build` makes, Ollama 0.40.6 from Homebrew (not running) and Llama 3.1
+8B. Tutor started Ollama by itself five seconds after it opened, wrote a question for each
+paragraph of a note (7 seconds for the first request, which loads the model, 2 seconds
+after that), and stopped Ollama and its model process when it quit. An Ollama the user had
+started was used and left running. Checking typed answers was tested with the same model
+through Tutor's code, not through the practice screen: an answer that was right in other
+words scored 1, a partial one 0.5, a wrong one 0.
+
 Not yet tested, because it needs the real systems or accounts:
 
-- running on macOS and Windows (expect small visual differences to fix)
+- the interface on macOS (only the AI path above was run there) and Windows (expect small
+  visual differences to fix)
 - the built-in AI on macOS and Windows, and its two real downloads: the engine from
   GitHub and the 2.5 GB Qwen3 model from Hugging Face, including how good and how fast
   that model is at writing questions and checking answers
@@ -184,8 +198,9 @@ src/
              follow Anytype's: white islands on a tinted desk); reduced motion is
              in motion.css
   platform.ts  everything that differs between the desktop app and the browser preview
-src-tauri/   the Rust shell: windows, tray, keychain, plugins (lib.rs) and
-             the built-in AI engine: download, start, stop (engine.rs)
+src-tauri/   the Rust shell: windows, tray, keychain, plugins (lib.rs),
+             the built-in AI engine: download, start, stop (engine.rs), and
+             starting an installed Ollama that is not running (ollama.rs)
 ```
 
 Things worth knowing before changing code:
@@ -209,6 +224,15 @@ Things worth knowing before changing code:
 - **The built-in engine is a separate program** that Tutor starts on a free local port.
   `engine_ensure_running` is called before every request, so a stopped engine comes back
   by itself.
+- **Where the model comes from, in order** (`src/ai/provider.ts`): an AI app already
+  running (Ollama, LM Studio), Tutor's built-in engine if it is set up, then Ollama started
+  by Tutor (`ollama_start` in `src-tauri/src/ollama.rs`), then the cloud model. Tutor
+  looks for the `ollama` program where its installers put it (Homebrew, Ollama.app, the
+  Windows installer's folder) before PATH, because an app opened from the Finder or the
+  Start menu does not get a terminal's PATH. What that Ollama prints goes to `ollama.log`
+  in the app's data folder.
+- **Small models break JSON now and then** (a missing quote in the second question).
+  `parseSuggestions` then keeps the questions that do parse (`extractJsonObjects`).
 
 ## License
 

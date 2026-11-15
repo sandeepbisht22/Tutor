@@ -5,8 +5,10 @@
 //   - a tray icon, so Tutor keeps running after the main window is closed
 //   - the SQLite database and outbound HTTP for AI calls (plugins)
 //   - the system keychain for cloud API keys
-//   - the built-in AI engine (engine.rs)
+//   - the built-in AI engine (engine.rs), and starting Ollama when it is
+//     installed but not running (ollama.rs)
 mod engine;
+mod ollama;
 
 use std::{
     sync::atomic::{AtomicBool, Ordering},
@@ -198,6 +200,7 @@ pub fn run() {
             None,
         ))
         .manage(engine::Engine::default())
+        .manage(ollama::Ollama::default())
         .invoke_handler(tauri::generate_handler![
             engine::engine_status,
             engine::engine_install,
@@ -205,6 +208,7 @@ pub fn run() {
             engine::engine_ensure_running,
             engine::engine_stop,
             engine::engine_remove,
+            ollama::ollama_start,
             secret_set,
             secret_get,
             secret_delete,
@@ -249,8 +253,12 @@ pub fn run() {
         .expect("error while starting Tutor");
 
     app.run(|app, event| match event {
-        // the built-in AI engine is a separate program: stop it with Tutor
-        tauri::RunEvent::Exit => engine::shutdown(app),
+        // the built-in AI engine, and an Ollama Tutor started, are separate
+        // programs: stop them with Tutor
+        tauri::RunEvent::Exit => {
+            engine::shutdown(app);
+            ollama::shutdown(app);
+        }
         // macOS: clicking the Dock icon brings the main window back
         #[cfg(target_os = "macos")]
         tauri::RunEvent::Reopen { .. } => show_main_window(app),
