@@ -147,3 +147,14 @@ export const engineCancel = () => invoke<void>("engine_cancel");
 /** Start the engine if needed and wait until the model is loaded. Returns its local port. */
 export const engineEnsureRunning = () => invoke<number>("engine_ensure_running");
 export const engineRemove = () => invoke<void>("engine_remove");
+
+// ---------- Ollama, started by Tutor when it is installed but not running (desktop app only) ----------
+
+/** "running": it already was; "started": Tutor just started it; "missing": it is not installed. */
+export type OllamaState = "running" | "started" | "missing";
+
+/** Start Ollama if it is installed but stopped. Rejects with a readable reason when it does not start. */
+export async function ollamaStart(): Promise<OllamaState> {
+  if (!desktop) return "missing";
+  return invoke<OllamaState>("ollama_start");
+}

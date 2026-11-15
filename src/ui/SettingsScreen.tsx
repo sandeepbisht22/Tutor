@@ -15,6 +15,7 @@ import {
   engineStatus,
   getApiKey,
   launchAtLoginEnabled,
+  ollamaStart,
   onEvent,
   setApiKey,
   setLaunchAtLogin,
@@ -290,11 +291,24 @@ function DeviceModel() {
   const [memory, setMemory] = useState<number | null>(null);
   const [setup, setSetup] = useState<Setup>({ state: "idle" });
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [ollamaProblem, setOllamaProblem] = useState<string | null>(null);
 
   const look = useCallback(async () => {
     setServers(null);
+    setOllamaProblem(null);
     resetProvider();
-    const [found, status] = await Promise.all([detectLocalServers(await getFetch()), engineStatus()]);
+    const fetch = await getFetch();
+    const [running, status] = await Promise.all([detectLocalServers(fetch), engineStatus()]);
+    // Nothing running and no built-in AI: start Ollama if it is installed,
+    // as Tutor would for a request (see deviceProvider), then look again.
+    let found = running;
+    if (running.length === 0 && !status.installed) {
+      try {
+        if ((await ollamaStart()) !== "missing") found = await detectLocalServers(fetch);
+      } catch (problem) {
+        setOllamaProblem(errorText(problem));
+      }
+    }
     setServers(found);
     setEngine(status);
     // the download keeps going in the background if Settings was closed meanwhile
@@ -441,8 +455,12 @@ function DeviceModel() {
             ))}
         </div>
       )}
+      {ollamaProblem && <p className="form-error">Ollama is installed but did not start: {ollamaProblem}</p>}
       {servers !== null && !external && (
-        <p className="hint">Already use Ollama or LM Studio? Tutor uses their models instead whenever one of them is running.</p>
+        <p className="hint">
+          Already use Ollama or LM Studio? Tutor uses their models instead: LM Studio while it is running, and Ollama
+          whenever it is installed (Tutor starts it when needed).
+        </p>
       )}
     </div>
   );

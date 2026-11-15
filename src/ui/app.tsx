@@ -4,7 +4,7 @@ import type { Db } from "../db";
 import { createScheduler, type Scheduler } from "../lib/scheduler";
 import { getFetch } from "../llm/http";
 import type { LlmProvider } from "../llm/types";
-import { emitEvent, engineEnsureRunning, engineStatus, getApiKey, onEvent } from "../platform";
+import { emitEvent, engineEnsureRunning, engineStatus, getApiKey, ollamaStart, onEvent } from "../platform";
 import { loadSettings, saveSetting, type Settings } from "../repo/settings";
 
 /** What every screen can reach: the database, the settings, the scheduler and the AI model. */
@@ -41,9 +41,12 @@ const BUILT_IN = {
   start: engineEnsureRunning,
 };
 
-/** Start Tutor's built-in AI now if it is the model Tutor would use (see warmUpBuiltIn). */
+/** Ollama installed but stopped: Tutor starts it. True when it is running afterwards. */
+const startOllama = async () => (await ollamaStart()) !== "missing";
+
+/** Start Tutor's built-in AI (or Ollama) now if it is the model Tutor would use (see warmUpBuiltIn). */
 export async function startBuiltInEarly(settings: Settings): Promise<boolean> {
-  return warmUpBuiltIn(settings, { fetch: await getFetch(), builtIn: BUILT_IN });
+  return warmUpBuiltIn(settings, { fetch: await getFetch(), builtIn: BUILT_IN, startOllama });
 }
 
 export function AppProvider({ db, initialSettings, children }: { db: Db; initialSettings: Settings; children: ReactNode }) {
@@ -87,7 +90,7 @@ export function AppProvider({ db, initialSettings, children }: { db: Db; initial
     const cached = provider.current;
     if (cached && Date.now() - cached.at < PROVIDER_TTL) return cached.value;
     const value = getFetch()
-      .then((fetch) => resolveProvider(settingsRef.current, { fetch, getApiKey, builtIn: BUILT_IN }))
+      .then((fetch) => resolveProvider(settingsRef.current, { fetch, getApiKey, builtIn: BUILT_IN, startOllama }))
       .catch(() => null);
     provider.current = { at: Date.now(), value };
     return value;

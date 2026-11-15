@@ -17,6 +17,11 @@ export interface ProviderDeps {
   /** reads the API key from the system keychain */
   getApiKey(provider: Exclude<CloudProvider, "">): Promise<string | null>;
   builtIn?: BuiltIn;
+  /**
+   * Start Ollama if it is installed but not running. Resolves to true when it
+   * is running afterwards (desktop app only).
+   */
+  startOllama?(): Promise<boolean>;
 }
 
 export const CLOUD_LABELS: Record<Exclude<CloudProvider, "">, string> = {
@@ -29,8 +34,9 @@ type AiSettings = Pick<Settings, "aiMode" | "localModel" | "cloudProvider" | "cl
 /**
  * The model Tutor should use right now, following the user's choice.
  * On this computer, in this order: an AI app that is already running
- * (Ollama, LM Studio), then Tutor's built-in engine. After that the connected
- * cloud model, unless the user chose "this computer only".
+ * (Ollama, LM Studio), then Tutor's built-in engine, then Ollama started by
+ * Tutor. After that the connected cloud model, unless the user chose
+ * "this computer only".
  * Null means "work without AI".
  */
 export async function resolveProvider(settings: AiSettings, deps: ProviderDeps): Promise<LlmProvider | null> {
@@ -43,7 +49,7 @@ export async function resolveProvider(settings: AiSettings, deps: ProviderDeps):
 }
 
 /** The parts of ProviderDeps a model on this computer needs (never the keychain). */
-type DeviceDeps = Pick<ProviderDeps, "fetch" | "builtIn">;
+type DeviceDeps = Pick<ProviderDeps, "fetch" | "builtIn" | "startOllama">;
 
 /**
  * Start Tutor's built-in engine ahead of the first request, so the first
@@ -51,6 +57,8 @@ type DeviceDeps = Pick<ProviderDeps, "fetch" | "builtIn">;
  * engine is the model Tutor would use: not when AI is off or cloud-only, not
  * when it is not installed, and not when Ollama or LM Studio is running
  * (those come first). Resolves to true when it started the engine.
+ * Finding the model may start Ollama instead (see deviceProvider), which is
+ * just as welcome here.
  */
 export async function warmUpBuiltIn(settings: AiSettings, deps: DeviceDeps): Promise<boolean> {
   if (!deps.builtIn || settings.aiMode === "off" || settings.aiMode === "cloud") return false;
@@ -60,9 +68,18 @@ export async function warmUpBuiltIn(settings: AiSettings, deps: DeviceDeps): Pro
   return true;
 }
 
-/** A model on this computer: an AI app that is already running (Ollama, LM Studio), then Tutor's built-in engine. */
+/**
+ * A model on this computer: an AI app that is already running (Ollama,
+ * LM Studio), then Tutor's built-in engine, then Ollama if it is installed
+ * but stopped (for example after a restart, when it is not set to start at
+ * login), which Tutor starts itself.
+ */
 async function deviceProvider(settings: AiSettings, deps: DeviceDeps): Promise<LlmProvider | null> {
-  return (await resolveLocalProvider(deps.fetch, { preferredModel: settings.localModel })) ?? (await builtInProvider(deps));
+  const find = () => resolveLocalProvider(deps.fetch, { preferredModel: settings.localModel });
+  const running = (await find()) ?? (await builtInProvider(deps));
+  if (running || !deps.startOllama) return running;
+  const started = await deps.startOllama().catch(() => false);
+  return started ? find() : null;
 }
 
 async function builtInProvider(deps: DeviceDeps): Promise<LlmProvider | null> {

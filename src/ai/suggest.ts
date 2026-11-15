@@ -1,7 +1,7 @@
 import type { Db } from "../db/driver";
 import type { DocNode, NoteBlock, QuestionMedia } from "../domain/types";
 import { figureAnnotations } from "../lib/blocks";
-import { extractJson, stripThinking } from "../llm/json";
+import { extractJson, extractJsonObjects, stripThinking } from "../llm/json";
 import type { ChatMessage, LlmProvider } from "../llm/types";
 import { getNote, listBlocks, listBlocksAwaitingSuggestions, markBlockSuggested } from "../repo/notes";
 import { createQuestion, deleteStaleSuggestions, listQuestionsForNote } from "../repo/questions";
@@ -66,9 +66,11 @@ const YES_NO = new Set(["yes", "no", "true", "false"]);
 
 /** Read the model's reply defensively: small models wander off the requested format. */
 export function parseSuggestions(reply: string, alreadyAsked: string[], max: number): Suggestion[] {
-  const parsed = extractJson(stripThinking(reply));
-  const list: unknown = Array.isArray(parsed) ? parsed : (parsed as { questions?: unknown } | null)?.questions;
-  if (!Array.isArray(list)) return [];
+  const cleaned = stripThinking(reply);
+  const parsed = extractJson(cleaned);
+  const structured: unknown = Array.isArray(parsed) ? parsed : (parsed as { questions?: unknown } | null)?.questions;
+  // When the list as a whole does not parse, keep the questions that do.
+  const list: unknown[] = Array.isArray(structured) ? structured : extractJsonObjects(cleaned);
 
   const seen = new Set(alreadyAsked.map(normalize));
   const result: Suggestion[] = [];
