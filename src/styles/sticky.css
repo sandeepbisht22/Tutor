@@ -1,0 +1,272 @@
+/*
+  The sticky window: one question on a yellow note on top of other apps.
+  A sticky note is yellow in any theme, so these colours are fixed.
+*/
+
+html[data-window="sticky"] body {
+  background: #fbf0a0;
+  color: #252525;
+}
+
+.sticky {
+  --s-ink: #252525;
+  --s-soft: #5d5420;
+  --s-band: #f4e47c;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background:
+    linear-gradient(var(--s-band), var(--s-band)) top / 100% 36px no-repeat,
+    #fbf0a0;
+  color: var(--s-ink);
+  color-scheme: light;
+}
+
+.sticky.is-empty {
+  background: #fbf0a0;
+}
+
+.sticky header {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  height: 36px;
+  padding: 0 6px 0 8px;
+  cursor: grab;
+}
+
+.sticky-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px 2px 3px;
+  border-radius: var(--r-sm);
+  font-family: var(--read);
+  font-size: 16px;
+  font-weight: 500;
+  --logo-card: #fff;
+}
+
+.sticky-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  transition:
+    background-color 120ms ease,
+    transform 120ms var(--ease-out);
+}
+
+.sticky-icon:active {
+  transform: scale(0.92);
+}
+
+.sticky-body {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+  min-height: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+  animation: rise-in 240ms var(--ease-out);
+}
+
+.sticky-body.is-centered {
+  justify-content: center;
+  text-align: center;
+}
+
+.sticky-body .annotated {
+  flex: none;
+  width: fit-content;
+  max-height: 120px;
+  margin: 0 auto;
+}
+
+.sticky-body .annotated img {
+  width: auto;
+  max-height: 120px;
+}
+
+.sticky-prompt {
+  font-family: var(--read);
+  font-size: 19px;
+  font-weight: 550;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.sticky-answer {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.sticky-answer input {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgb(37 37 37 / 0.2);
+  border-radius: var(--r);
+  background: rgb(255 255 255 / 0.7);
+  color: var(--s-ink);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.sticky-answer input::placeholder {
+  color: rgb(37 37 37 / 0.45);
+}
+
+.sticky-answer input:focus {
+  outline: none;
+  border-color: var(--s-ink);
+  background: #fff;
+}
+
+.sticky-answer button,
+.sticky-choices button {
+  min-height: 36px;
+  border-radius: var(--r);
+  background: var(--s-ink);
+  color: #fff;
+  font-weight: 600;
+  transition: transform 140ms var(--ease-out);
+}
+
+.sticky-answer button:active,
+.sticky-choices button:active,
+.sticky-rate button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.sticky-choices {
+  display: grid;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.sticky-choices button:last-child {
+  background: none;
+  color: var(--s-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sticky-answer-text {
+  padding-top: 9px;
+  border-top: 2px solid rgb(37 37 37 / 0.16);
+  color: #3048d0;
+  font-family: var(--read);
+  font-size: 17px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  animation: ink-in 240ms var(--ease-out);
+}
+
+.sticky-note {
+  color: var(--s-soft);
+  font-size: 12.5px;
+}
+
+.sticky-rate {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: auto;
+}
+
+.sticky-rate button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 4px;
+  border-radius: var(--r);
+  background: rgb(255 255 255 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(37 37 37 / 0.14);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color 140ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.sticky-rate .rate-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3e58eb;
+}
+
+.sticky-rate .rate-1 .rate-dot {
+  background: #f55522;
+}
+
+.sticky-rate .rate-2 .rate-dot {
+  background: #ffb522;
+}
+
+.sticky-rate .rate-3 .rate-dot {
+  background: #0fc8ba;
+}
+
+.sticky-rate button.is-proposed {
+  background: var(--s-ink);
+  box-shadow: none;
+  color: #fff;
+}
+
+.sticky .done-mark.is-small {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 2px;
+  background: #0caaa3;
+  box-shadow: none;
+  animation: done-pop 460ms var(--ease-out) backwards;
+}
+
+.sticky.is-compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 4px;
+  background: var(--s-band);
+  cursor: grab;
+}
+
+.sticky-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 120ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sticky-icon:hover,
+  .sticky-open:hover,
+  .sticky-brand:hover {
+    background: rgb(37 37 37 / 0.08);
+  }
+
+  .sticky-rate button:hover:not(:disabled) {
+    background: #fff;
+  }
+}
+
+.sticky :focus-visible {
+  outline-color: var(--s-ink);
+}

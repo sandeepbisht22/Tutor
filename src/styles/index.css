@@ -1,0 +1,13 @@
+/* Tutor's styles, one file per area. Order matters: tokens, then base, then screens, motion last. */
+@import "./tokens.css";
+@import "./base.css";
+@import "./shell.css";
+@import "./cards.css";
+@import "./home.css";
+@import "./note.css";
+@import "./annotations.css";
+@import "./practice.css";
+@import "./data.css";
+@import "./overlays.css";
+@import "./sticky.css";
+@import "./motion.css";

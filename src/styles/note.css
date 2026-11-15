@@ -1,0 +1,545 @@
+/* ---------- the note: a quiet writing column, questions beside it ---------- */
+
+.note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: 100%;
+}
+
+.note.has-panel {
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.note-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  container-type: inline-size;
+}
+
+/* when the editor column is narrow, "Add image" keeps only its icon */
+@container (max-width: 680px) {
+  .tool.is-wide {
+    gap: 0;
+    padding: 0;
+    font-size: 0;
+  }
+}
+
+.note-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  min-height: 46px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.toolbar-gap {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: var(--line);
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  color: var(--graphite);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.tool.is-wide {
+  padding: 0 9px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.tool.is-active {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tool:not(.is-active):hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+}
+
+.save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--pencil);
+  font-size: 12.5px;
+}
+
+.save-state.is-saved svg {
+  color: var(--good);
+}
+
+.save-state.is-error {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.inline-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  animation: fade-in 160ms ease-out;
+}
+
+.note-problem {
+  padding: 8px 18px;
+}
+
+.note-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 52px 56px 140px;
+}
+
+.note-sheet {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.note-title {
+  display: block;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font-family: var(--read);
+  font-size: 42px;
+  font-weight: 330;
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+}
+
+.note-body .ProseMirror {
+  min-height: 320px;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: -0.011em;
+}
+
+.note-body .ProseMirror > * {
+  margin: 0 0 0.7em;
+}
+
+.note-body .ProseMirror h1,
+.note-body .ProseMirror h2,
+.note-body .ProseMirror h3 {
+  margin-top: 1.5em;
+  font-weight: 650;
+  letter-spacing: -0.018em;
+  line-height: 1.3;
+}
+
+.note-body .ProseMirror h1 {
+  font-size: 1.6em;
+}
+
+.note-body .ProseMirror h2 {
+  font-size: 1.35em;
+}
+
+.note-body .ProseMirror h3 {
+  font-size: 1.12em;
+}
+
+.note-body .ProseMirror ul,
+.note-body .ProseMirror ol {
+  padding-left: 1.4em;
+}
+
+.note-body .ProseMirror ul {
+  list-style: disc;
+}
+
+.note-body .ProseMirror ol {
+  list-style: decimal;
+}
+
+.note-body .ProseMirror li::marker {
+  color: var(--pencil);
+}
+
+.note-body .ProseMirror li > p {
+  margin: 0 0 0.25em;
+}
+
+.note-body .ProseMirror blockquote {
+  padding-left: 1em;
+  border-left: 3px solid var(--ink);
+  color: var(--ink-soft);
+}
+
+.note-body .ProseMirror code {
+  padding: 0.12em 0.32em;
+  border-radius: var(--r-xs);
+  background: var(--paper-3);
+  color: var(--red-ink);
+  font: 0.86em/1.5 var(--mono);
+}
+
+.note-body .ProseMirror pre {
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: #1b1b1d;
+  color: #ececec;
+  overflow-x: auto;
+}
+
+.note-body .ProseMirror pre code {
+  padding: 0;
+  background: none;
+  color: inherit;
+}
+
+.note-body .ProseMirror a {
+  color: var(--blue-deep);
+}
+
+.note-body .ProseMirror hr {
+  margin: 1.6em 0;
+  border: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.note-body .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--pencil);
+  pointer-events: none;
+}
+
+/* ---------- images inside a note ---------- */
+
+.figure {
+  margin: 1.2em 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--paper-2);
+  font: 14px/1.45 var(--ui);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.figure.is-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+}
+
+.figure-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  color: var(--graphite);
+}
+
+.figure-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.figure-description {
+  flex: 1;
+  min-height: 34px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  field-sizing: content;
+}
+
+.figure-note {
+  margin-top: 6px;
+  color: var(--graphite);
+  font-size: 12.5px;
+}
+
+/* ---------- the questions beside a note ---------- */
+
+.note-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding: 14px 14px 40px;
+  border-left: 1px solid var(--line);
+  background: var(--paper-2);
+  overflow-y: auto;
+  /* one entrance for the panel; the cards inside arrive with it */
+  animation: panel-in 240ms var(--ease-out);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.panel-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.panel-count {
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--paper-3);
+  color: var(--graphite);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 19px;
+}
+
+.note-questions ul,
+.suggestion-list {
+  display: grid;
+  gap: 10px;
+}
+
+.section-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.section-line h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* a question: a small card with the index card's red top rule */
+.q-card {
+  padding: 12px 14px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: inset 0 2px 0 var(--rule);
+}
+
+.q-card.is-paused {
+  box-shadow: inset 0 2px 0 var(--line-strong);
+  color: var(--graphite);
+}
+
+.q-card.is-suggested {
+  border-color: color-mix(in srgb, var(--yellow) 35%, transparent);
+  background: var(--ai-bg);
+  box-shadow: inset 0 2px 0 var(--yellow);
+}
+
+.q-card .annotated {
+  margin-bottom: 8px;
+}
+
+.q-prompt {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.q-answer {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px dashed var(--line-strong);
+  color: var(--card-answer);
+  font-family: var(--read);
+  font-size: 15.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.q-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.q-actions .btn-keep {
+  margin-right: 4px;
+}
+
+.q-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 26px;
+  margin-top: 8px;
+}
+
+.q-icons {
+  display: flex;
+  gap: 1px;
+  transition: opacity 150ms ease;
+}
+
+.q-icons button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  color: var(--graphite);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 120ms var(--ease-out);
+}
+
+.q-icons button:active {
+  transform: scale(0.92);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .q-icons {
+    opacity: 0.45;
+  }
+
+  .q-card:hover .q-icons,
+  .q-icons:focus-within {
+    opacity: 1;
+  }
+
+  .q-icons button:hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+}
+
+.source-flag {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-radius: var(--r-sm);
+  background: var(--orange-bg);
+  color: var(--orange-ink);
+  font-size: 12.5px;
+}
+
+.source-quote {
+  margin-top: 8px;
+  padding: 2px 0 2px 12px;
+  border-left: 3px solid var(--line-strong);
+  color: var(--graphite);
+  font-family: var(--read);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* writing or editing a question */
+.question-form {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: var(--island);
+  animation: rise-in 200ms var(--ease-out);
+}
+
+.q-card .question-form {
+  margin-top: 10px;
+  padding: 10px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.question-form > label {
+  display: grid;
+  gap: 4px;
+  color: var(--graphite);
+  font-size: 12.5px;
+  font-weight: 550;
+}
+
+.question-form textarea {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.question-form .check {
+  font-size: 13px;
+}
+
+.question-form .hint {
+  font-size: 11.5px;
+}
+
+/* ---------- narrow windows ---------- */
+
+@media (max-width: 1100px) {
+  .note-page {
+    padding: 32px 28px 100px;
+  }
+
+  .note-title {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 900px) {
+  .note.has-panel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) minmax(200px, 42%);
+  }
+
+  .note-questions {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}

@@ -1,0 +1,490 @@
+/* ---------- the window: two white islands on the desk ---------- */
+
+.shell {
+  display: flex;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+  background: var(--desk);
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  box-shadow: var(--island);
+  overflow: hidden;
+}
+
+/* practice puts the card on the desk itself, with nothing around it */
+.shell.is-practice .workspace {
+  background: transparent;
+  box-shadow: none;
+}
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* a change of place fades in rather than teleporting; the screen's own lead element carries any movement */
+  animation: fade-in 160ms ease-out;
+}
+
+.shell.is-note .screen {
+  overflow: hidden;
+}
+
+.page {
+  display: grid;
+  gap: 28px;
+  align-content: start;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 36px 44px 96px;
+}
+
+.page > section {
+  display: grid;
+  gap: 12px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+}
+
+.section-head h2 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+/* ---------- sidebar ---------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: none;
+  width: 248px;
+  padding: 12px 8px 8px;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  box-shadow: var(--island);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* in a short window the sidebar scrolls; its rows keep their height */
+.sidebar > * {
+  flex-shrink: 0;
+}
+
+.shell.is-narrow .sidebar {
+  position: fixed;
+  inset: 8px auto 8px 8px;
+  z-index: 40;
+  transform: translateX(calc(-100% - 16px));
+  visibility: hidden;
+  transition:
+    transform 300ms var(--ease-drawer),
+    visibility 0s linear 300ms;
+}
+
+.shell.is-narrow.has-sidebar .sidebar {
+  transform: none;
+  visibility: visible;
+  box-shadow: var(--shadow-3);
+  transition: transform 300ms var(--ease-drawer);
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: var(--scrim);
+  animation: fade-in 200ms ease-out;
+}
+
+.side-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 8px;
+  font-family: var(--read);
+  font-size: 21px;
+  font-weight: 450;
+  letter-spacing: -0.015em;
+}
+
+.logo {
+  flex: none;
+}
+
+.side-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 6px 0 9px;
+  border-radius: var(--r);
+  background: var(--paper-3);
+  color: var(--graphite);
+  font-size: 13.5px;
+  text-align: left;
+  transition: background-color 140ms ease;
+}
+
+.side-search > span:first-of-type {
+  flex: 1;
+}
+
+.side-search .kbd {
+  min-width: 18px;
+  height: 18px;
+  border-color: var(--line);
+  font-size: 10.5px;
+}
+
+/* the practise button is a small index card: title above the red rule, count on a ruled line */
+.side-practise {
+  display: grid;
+  justify-items: start;
+  padding: 6px 12px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(var(--rule), var(--rule)) 0 35px / 100% 1.5px no-repeat,
+    linear-gradient(var(--ruling), var(--ruling)) 0 58px / 100% 1px no-repeat,
+    var(--card);
+  color: var(--card-ink);
+  text-align: left;
+  transition:
+    transform 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out),
+    border-color 200ms ease;
+}
+
+.side-practise-title {
+  font-family: var(--read);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 27px;
+  letter-spacing: -0.01em;
+}
+
+.side-practise-sub {
+  margin-top: 3px;
+  color: var(--graphite);
+  font-size: 12.5px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.side-practise:disabled .side-practise-title {
+  color: var(--graphite);
+}
+
+.side-practise:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.side-list {
+  display: grid;
+  gap: 1px;
+}
+
+.side-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 7px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  text-align: left;
+  transition: background-color 120ms ease;
+}
+
+.side-link svg {
+  flex: none;
+  color: var(--graphite);
+}
+
+.side-link[aria-current="page"] {
+  background: var(--paper-3);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.side-link[aria-current="page"] svg {
+  color: var(--ink);
+}
+
+.side-link-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-count {
+  flex: none;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--paper-3);
+  color: var(--graphite);
+  font-size: 11.5px;
+  font-weight: 650;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.side-count.is-ai {
+  background: var(--ai-bg);
+  color: var(--ai-ink);
+}
+
+.side-count.is-ready {
+  background: var(--due-bg);
+  color: var(--due-ink);
+}
+
+.side-widget {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+}
+
+.side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 26px;
+  padding: 0 4px 0 8px;
+  color: var(--graphite);
+  font-size: 12.5px;
+  font-weight: 550;
+}
+
+.side-head h2 {
+  font: inherit;
+}
+
+.side-add {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  color: var(--graphite);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.side-add:active {
+  transform: scale(0.94);
+}
+
+.side-tree,
+.side-tree ul {
+  display: grid;
+  gap: 1px;
+}
+
+.side-topic {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  min-height: 32px;
+  padding: 0 6px 0 calc(2px + var(--depth, 0) * 14px);
+  border-radius: 7px;
+  transition: background-color 120ms ease;
+}
+
+.side-topic.is-current {
+  background: var(--paper-3);
+}
+
+.side-twisty {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-xs);
+  color: var(--pencil);
+}
+
+.side-twisty svg {
+  transition: transform 180ms var(--ease-out);
+}
+
+.side-twisty.is-open svg {
+  transform: rotate(90deg);
+}
+
+.side-topic-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 4px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  text-align: left;
+}
+
+.side-topic-name > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-topic-name .tag-dot {
+  margin: 0 5px;
+}
+
+.side-topic.is-current .side-topic-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.side-input {
+  padding: 3px 4px;
+}
+
+.side-empty {
+  padding: 2px 8px;
+  color: var(--graphite);
+  font-size: 12.5px;
+}
+
+.side-foot {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .side-search:hover {
+    background: var(--desk-2);
+  }
+
+  .side-practise:hover:not(:disabled) {
+    border-color: var(--line-strong);
+    box-shadow: var(--island);
+  }
+
+  .side-link:hover:not([aria-current="page"]),
+  .side-topic:not(.is-current):hover,
+  .side-add:hover,
+  .side-twisty:hover {
+    background: var(--hover);
+  }
+
+  .side-add:hover {
+    color: var(--ink);
+  }
+}
+
+/* ---------- top bar inside the workspace ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 48px;
+  padding: 0 12px 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.trail {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--graphite);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.trail > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+}
+
+.trail svg {
+  flex: none;
+  color: var(--pencil);
+}
+
+.trail button,
+.trail [aria-current] {
+  padding: 4px 6px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trail button {
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.trail [aria-current] {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trail button:hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+}
+
+.queue-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--blue-soft);
+  color: var(--blue-deep);
+  font-size: 12.5px;
+  font-weight: 550;
+  animation: fade-in 200ms ease-out;
+}
+
+/* ---------- narrow windows ---------- */
+
+@media (max-width: 760px) {
+  .page {
+    padding: 24px 22px 72px;
+  }
+
+  .page-title {
+    font-size: 32px;
+  }
+}

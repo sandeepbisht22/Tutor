@@ -1,0 +1,62 @@
+/*
+  Reduced motion means fewer and gentler animations, not none: entrances and
+  exits keep a short fade (it shows what changed), while movement, scaling,
+  tilting, growing bars and pulsing stop.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-property: color, background-color, border-color, box-shadow, opacity !important;
+    scroll-behavior: auto !important;
+  }
+
+  .confirm,
+  .dialog,
+  .annotator,
+  .toast,
+  .deck-card,
+  .deck-under,
+  .index-card.is-dealt,
+  .index-back,
+  .note-questions,
+  .question-form,
+  .answer-island,
+  .practice-done > *,
+  .practice-done > .done-mark,
+  .done-mark.is-small,
+  .rate-proposed,
+  .sticky-body,
+  .sticky-answer-text {
+    animation-name: fade-in !important;
+  }
+
+  /* the rated card still leaves (and the next one shows), just without travelling */
+  .index-card.is-leaving.is-away,
+  .index-card.is-leaving.is-back {
+    animation-name: fade-out !important;
+  }
+
+  .deck-under {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--tilt));
+  }
+
+  .pulse,
+  .spin {
+    animation: none !important;
+  }
+
+  .tally-bar {
+    animation: none !important;
+  }
+
+  .done-mark svg path,
+  .done-mark svg polyline {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+
+  .shell.is-narrow .sidebar {
+    transition: none !important;
+  }
+}

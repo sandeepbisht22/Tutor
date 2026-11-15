@@ -1,0 +1,224 @@
+/*
+  Tutor — white islands on a quiet desk.
+  The structure and neutrals follow Anytype: a pale cool-grey backdrop with the
+  sidebar and the workspace as white rounded islands, near-black ink, one blue
+  for focus and selection, and soft tag colours for everything that is grouped.
+  Tutor's own identity stays in two paper objects: the ruled index card a
+  question is asked on, and the yellow sticky note.
+
+  The page always carries data-theme="light" or "dark" (see ui/theme.ts).
+*/
+:root {
+  /* the desk and the islands on it */
+  --desk: #f2f2f7;
+  --desk-2: #e9e9ef;
+  --paper: #ffffff;
+  --paper-2: #f7f7f7;
+  --paper-3: #f2f2f2;
+  --hover: rgb(0 0 0 / 0.045);
+  --press: rgb(0 0 0 / 0.08);
+
+  /* ink */
+  --ink: #252525;
+  --ink-soft: #3d3d3d;
+  --graphite: #6e6e6e;
+  --pencil: #a6a6a6;
+  --line: #ebebeb;
+  --line-strong: #d9d9d9;
+
+  /* actions are ink; focus, selection and links are blue */
+  --accent: #252525;
+  --accent-deep: #000000;
+  --accent-soft: #f2f2f2;
+  --on-accent: #ffffff;
+  --blue: #377aff;
+  --blue-deep: #105aef;
+  --blue-soft: rgb(55 122 255 / 0.12);
+  --selection: rgb(55 122 255 / 0.16);
+
+  /* the index card */
+  --card: #ffffff;
+  --card-ink: #252525;
+  --card-answer: #3e58eb;
+  --rule: #e5484d;
+  --ruling: #dfe6f5;
+  --margin-line: rgb(229 72 77 / 0.24);
+
+  /* tag colours (Anytype's set): -bg for fills, -ink for text on them, plain for marks */
+  --red: #f55522;
+  --red-bg: #fee7e0;
+  --red-ink: #c4380b;
+  --orange: #ffb522;
+  --orange-bg: #fff2d7;
+  --orange-ink: #a95c08;
+  --yellow: #ecd91b;
+  --yellow-bg: #fcf8d6;
+  --yellow-ink: #7a6f00;
+  --lime: #5dd400;
+  --lime-bg: #e5f8d6;
+  --lime-ink: #4a8f0b;
+  --teal: #0fc8ba;
+  --teal-bg: #d9f6f4;
+  --teal-ink: #08857f;
+  --ice: #2aa7ee;
+  --ice-bg: #ddf1fc;
+  --ice-ink: #157ab4;
+  --tag-blue: #3e58eb;
+  --tag-blue-bg: #e4e8fc;
+  --tag-blue-ink: #3048d0;
+  --purple: #ab50cc;
+  --purple-bg: #f3e7f8;
+  --purple-ink: #8b2fae;
+  --pink: #e51ca0;
+  --pink-bg: #fbdff2;
+  --pink-ink: #b8167f;
+
+  /* meanings, built from the tag colours */
+  --due: var(--red);
+  --due-bg: var(--red-bg);
+  --due-ink: var(--red-ink);
+  --ai: var(--yellow);
+  --ai-bg: var(--yellow-bg);
+  --ai-ink: var(--yellow-ink);
+  --good: var(--teal-ink);
+  --good-bg: var(--teal-bg);
+  --warn: var(--orange-ink);
+  --warn-bg: var(--orange-bg);
+  --danger: #d6352f;
+  --danger-bg: var(--red-bg);
+  --on-danger: #ffffff;
+
+  /* how well you remembered: forgot, barely, got it, easily */
+  --rate-1: var(--red);
+  --rate-1-bg: var(--red-bg);
+  --rate-1-ink: var(--red-ink);
+  --rate-2: var(--orange);
+  --rate-2-bg: var(--orange-bg);
+  --rate-2-ink: var(--orange-ink);
+  --rate-3: var(--teal);
+  --rate-3-bg: var(--teal-bg);
+  --rate-3-ink: var(--teal-ink);
+  --rate-4: var(--tag-blue);
+  --rate-4-bg: var(--tag-blue-bg);
+  --rate-4-ink: var(--tag-blue-ink);
+
+  /* how well a topic is known: one teal in three strengths */
+  --strong: #0caaa3;
+  --learning: #8fe0d9;
+  --fresh: #e6e6e6;
+
+  /* activity, one teal from light to dark (validated with the dataviz skill's checker) */
+  --heat-0: #ededf0;
+  --heat-1: #55c4b9;
+  --heat-2: #1fa69b;
+  --heat-3: #0c837b;
+  --heat-4: #065d58;
+
+  /* depth: hairlines for things that sit in the page, the island shadow for things that float */
+  --shadow-1: 0 0 0 1px var(--line);
+  --island: 0 0 0.93px 0 rgb(0 0 0 / 0.17), 0 0 3.13px 0 rgb(0 0 0 / 0.08), 0 7px 14px 0 rgb(0 0 0 / 0.05);
+  --shadow-2: var(--island);
+  --shadow-3: 0 0 0 1px rgb(0 0 0 / 0.05), 0 4px 10px rgb(0 0 0 / 0.05), 0 18px 44px -10px rgb(0 0 0 / 0.22);
+  --scrim: rgb(20 20 24 / 0.32);
+
+  --ui: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --read: "Newsreader Variable", Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* radius grows with the size of the thing */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --r-pill: 999px;
+
+  /* motion: strong ease-out for UI, iOS drawer curve for the sidebar drawer */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  color-scheme: light;
+}
+
+/* Dark: Anytype's night palette. Islands are a step lighter than the desk. */
+:root[data-theme="dark"] {
+  --desk: #121212;
+  --desk-2: #0b0b0c;
+  --paper: #1e1e21;
+  --paper-2: #252528;
+  --paper-3: #2a2a2e;
+  --hover: rgb(255 255 255 / 0.05);
+  --press: rgb(255 255 255 / 0.09);
+
+  --ink: #f0f0f0;
+  --ink-soft: #d6d6d6;
+  --graphite: #a3a3a3;
+  --pencil: #6b6b6b;
+  --line: #2c2c30;
+  --line-strong: #3a3a3f;
+
+  --accent: #ececec;
+  --accent-deep: #ffffff;
+  --accent-soft: #2a2a2e;
+  --on-accent: #161616;
+  --blue: #699bff;
+  --blue-deep: #9bbcff;
+  --blue-soft: rgb(105 155 255 / 0.16);
+  --selection: rgb(105 155 255 / 0.24);
+
+  --card: #232327;
+  --card-ink: #f0f0f0;
+  --card-answer: #9db0ff;
+  --rule: #e5484d;
+  --ruling: #31343f;
+  --margin-line: rgb(229 72 77 / 0.3);
+
+  --red-bg: #2d1d18;
+  --red-ink: #ff8a62;
+  --orange-bg: #262117;
+  --orange-ink: #f5bd4f;
+  --yellow-bg: #242317;
+  --yellow-ink: #e6d84a;
+  --lime-bg: #202919;
+  --lime-ink: #8fe04a;
+  --teal-bg: #162827;
+  --teal-ink: #3fdccf;
+  --ice-bg: #17252d;
+  --ice-ink: #6cc4f5;
+  --tag-blue-bg: #1e2131;
+  --tag-blue-ink: #95a6ff;
+  --purple-bg: #281c2c;
+  --purple-ink: #d290ea;
+  --pink-bg: #2d1926;
+  --pink-ink: #f27ac8;
+  --danger: #ff6b66;
+  --on-danger: #1a0b0b;
+
+  --strong: #2fd3c6;
+  --learning: #1d6a65;
+  --fresh: #34343a;
+
+  --heat-0: #2a2a2e;
+  --heat-1: #23716b;
+  --heat-2: #1f9b92;
+  --heat-3: #3cc9bd;
+  --heat-4: #86ede4;
+
+  --island: 0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 3px rgb(0 0 0 / 0.5), 0 8px 18px rgb(0 0 0 / 0.35);
+  --shadow-3: 0 0 0 1px rgb(255 255 255 / 0.07), 0 6px 14px rgb(0 0 0 / 0.4), 0 24px 56px -12px rgb(0 0 0 / 0.7);
+  --scrim: rgb(0 0 0 / 0.55);
+
+  color-scheme: dark;
+}
+
+/* one class per tag colour sets --tag, --tag-bg and --tag-ink for whatever it marks */
+.tag-red { --tag: var(--red); --tag-bg: var(--red-bg); --tag-ink: var(--red-ink); }
+.tag-orange { --tag: var(--orange); --tag-bg: var(--orange-bg); --tag-ink: var(--orange-ink); }
+.tag-yellow { --tag: var(--yellow); --tag-bg: var(--yellow-bg); --tag-ink: var(--yellow-ink); }
+.tag-lime { --tag: var(--lime); --tag-bg: var(--lime-bg); --tag-ink: var(--lime-ink); }
+.tag-teal { --tag: var(--teal); --tag-bg: var(--teal-bg); --tag-ink: var(--teal-ink); }
+.tag-ice { --tag: var(--ice); --tag-bg: var(--ice-bg); --tag-ink: var(--ice-ink); }
+.tag-blue { --tag: var(--tag-blue); --tag-bg: var(--tag-blue-bg); --tag-ink: var(--tag-blue-ink); }
+.tag-purple { --tag: var(--purple); --tag-bg: var(--purple-bg); --tag-ink: var(--purple-ink); }
+.tag-pink { --tag: var(--pink); --tag-bg: var(--pink-bg); --tag-ink: var(--pink-ink); }

@@ -1,0 +1,338 @@
+/*
+  The index card, Tutor's one paper object, and the deck it sits on.
+  Cards behind the top one keep their resting tilt in --dx / --dy / --tilt so
+  the deal-in can start further away and settle there.
+*/
+
+.deck-under {
+  --dx: 0px;
+  --dy: 0px;
+  --tilt: 0deg;
+  grid-area: 1 / 1;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--card);
+  transform: translate(var(--dx), var(--dy)) rotate(var(--tilt));
+  animation: deal 340ms var(--ease-out) backwards;
+}
+
+.deck-under.is-1 {
+  --dx: -6px;
+  --dy: 6px;
+  --tilt: -2.4deg;
+  animation-delay: 70ms;
+}
+
+.deck-under.is-2 {
+  --dx: 8px;
+  --dy: 9px;
+  --tilt: 2deg;
+  animation-delay: 35ms;
+}
+
+.deck-under.is-3 {
+  --dx: 2px;
+  --dy: 15px;
+  --tilt: -0.8deg;
+}
+
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translate(var(--dx), calc(var(--dy) + 20px)) rotate(calc(var(--tilt) * 2));
+  }
+}
+
+/* ---------- the deck on the Today screen ---------- */
+
+.deck {
+  display: grid;
+  width: 100%;
+  min-height: 214px;
+  text-align: left;
+  isolation: isolate;
+}
+
+.deck-card {
+  --pitch: 28px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  grid-area: 1 / 1;
+  padding: 0 22px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(var(--rule), var(--rule)) 0 46px / 100% 2px no-repeat,
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--pitch) - 1px),
+        var(--ruling) calc(var(--pitch) - 1px),
+        var(--ruling) var(--pitch)
+      )
+      0 48px / 100% 100% no-repeat,
+    var(--card);
+  color: var(--card-ink);
+  box-shadow: var(--island);
+  animation: deal 340ms var(--ease-out) 105ms backwards;
+  transition:
+    transform 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out);
+}
+
+.deck-topic {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 46px;
+  overflow: hidden;
+  color: var(--graphite);
+  font-size: 12.5px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.deck-prompt {
+  display: -webkit-box;
+  margin-top: 4px;
+  overflow: hidden;
+  font-family: var(--read);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: var(--pitch);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.deck:active .deck-card {
+  transform: scale(0.985);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .deck:not(.is-empty):hover .deck-card {
+    transform: translateY(-4px) rotate(-0.5deg);
+    box-shadow: var(--shadow-3);
+  }
+}
+
+.deck.is-empty .deck-card {
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 48px;
+  text-align: center;
+}
+
+.deck.is-empty .deck-prompt {
+  color: var(--graphite);
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.deck-check {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--good-bg);
+  color: var(--good);
+}
+
+/* ---------- the index card a question is asked on ---------- */
+
+.card-stack {
+  display: grid;
+  isolation: isolate;
+}
+
+/*
+  Geometry: a 52px head above a 2px red rule, then ruled lines every --pitch.
+  Every line of text below the rule (prompt, your answer, the answer) sits on a line.
+*/
+.index-card {
+  --pitch: 34px;
+  --head: 52px;
+  position: relative;
+  z-index: 1;
+  grid-area: 1 / 1;
+  min-height: calc(var(--head) + 2px + var(--pitch) * 6);
+  padding: 0 32px var(--pitch);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(var(--rule), var(--rule)) 0 var(--head) / 100% 2px no-repeat,
+    repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(var(--pitch) - 1px),
+        var(--ruling) calc(var(--pitch) - 1px),
+        var(--ruling) var(--pitch)
+      )
+      0 calc(var(--head) + 2px) / 100% 100% no-repeat,
+    var(--card);
+  color: var(--card-ink);
+  box-shadow: var(--island), 0 22px 40px -28px rgb(0 0 0 / 0.35);
+  font-family: var(--read);
+  font-size: 21px;
+  line-height: var(--pitch);
+  letter-spacing: -0.006em;
+}
+
+/* a new question settles onto the deck (not when the previous card is still leaving on top of it) */
+.index-card.is-dealt {
+  animation: card-in 220ms var(--ease-out);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+.index-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: var(--head);
+  font: 550 12.5px/1 var(--ui);
+  letter-spacing: -0.003em;
+}
+
+.index-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--graphite);
+  white-space: nowrap;
+}
+
+.index-new {
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-ink);
+  font-size: 11.5px;
+}
+
+.index-front,
+.index-yours,
+.index-back {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.index-front {
+  margin-top: 2px;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+/* you write your answer on the card's lines */
+.index-write {
+  display: block;
+  width: 100%;
+  min-height: calc(var(--pitch) * 2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--graphite);
+  font: inherit;
+  line-height: var(--pitch);
+  resize: none;
+  overflow: hidden;
+}
+
+.index-write:focus {
+  outline: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.index-write::placeholder {
+  color: var(--pencil);
+  font-style: italic;
+}
+
+.index-card:has(.index-write:focus-visible) {
+  box-shadow:
+    0 0 0 3px var(--blue-soft),
+    var(--island);
+}
+
+/* what you wrote stays in pencil; the answer is written beneath it in ink */
+.index-yours {
+  color: var(--graphite);
+  font-style: italic;
+}
+
+.index-back {
+  color: var(--card-answer);
+  font-weight: 500;
+  animation: ink-in 260ms var(--ease-out);
+}
+
+@keyframes ink-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(3px);
+  }
+}
+
+/* with an image the card is plain paper: ruled lines would fight the picture */
+.index-card:has(.question-image) {
+  background:
+    linear-gradient(var(--rule), var(--rule)) 0 var(--head) / 100% 2px no-repeat,
+    var(--card);
+}
+
+.index-card .question-image {
+  max-width: 560px;
+  margin: 14px auto 10px;
+}
+
+/* ---------- the card that was just rated, leaving ---------- */
+
+.index-card.is-leaving {
+  pointer-events: none;
+  animation-duration: 340ms;
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: forwards;
+}
+
+/* remembered: filed away off the deck */
+.index-card.is-leaving.is-away {
+  z-index: 2;
+  animation-name: file-away;
+}
+
+/* forgotten: slides back under the deck, because it comes round again this session */
+.index-card.is-leaving.is-back {
+  z-index: 0;
+  animation-name: to-back;
+}
+
+@keyframes file-away {
+  to {
+    opacity: 0;
+    transform: translate(46%, -4%) rotate(6deg);
+  }
+}
+
+@keyframes to-back {
+  to {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+}

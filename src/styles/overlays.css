@@ -1,0 +1,193 @@
+/*
+  Things that float above the page: the search palette (Ctrl/⌘ K) and the "/"
+  menu in the editor. Both open without animation: they are summoned by the
+  keyboard many times a day, and any delay would read as lag.
+*/
+
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12vh 16px 16px;
+  background: rgb(0 0 0 / 0.16);
+}
+
+[data-theme="dark"] .palette-backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 100%);
+  max-height: 64vh;
+  border-radius: var(--r-xl);
+  background: var(--paper);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+
+.palette-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  height: 54px;
+  padding: 0 14px 0 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--graphite);
+}
+
+.palette-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+  letter-spacing: -0.011em;
+}
+
+.palette-results {
+  flex: 1;
+  min-height: 0;
+  padding: 6px;
+  overflow-y: auto;
+}
+
+.palette-group {
+  padding: 10px 10px 4px;
+  color: var(--graphite);
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: var(--r);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.palette-item.is-active {
+  background: var(--paper-3);
+}
+
+.palette-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  color: var(--graphite);
+}
+
+.palette-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-hint {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  color: var(--graphite);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-empty {
+  padding: 18px 12px;
+  color: var(--graphite);
+}
+
+.palette-foot {
+  display: flex;
+  gap: 16px;
+  flex: none;
+  padding: 8px 14px;
+  border-top: 1px solid var(--line);
+  color: var(--graphite);
+  font-size: 12px;
+}
+
+.palette-foot .kbd {
+  min-width: 18px;
+  height: 18px;
+}
+
+/* ---------- the "/" menu ---------- */
+
+.slash-menu {
+  position: fixed;
+  z-index: 80;
+  width: 288px;
+  max-height: 330px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: var(--shadow-3);
+  overflow-y: auto;
+  font: 14px/1.4 var(--ui);
+  letter-spacing: -0.006em;
+}
+
+.slash-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px 5px 5px;
+  border-radius: var(--r);
+  cursor: pointer;
+}
+
+.slash-item.is-active {
+  background: var(--paper-3);
+}
+
+.slash-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+
+.slash-item.is-question .slash-icon {
+  border-color: transparent;
+  background: var(--ai-bg);
+  color: var(--ai-ink);
+}
+
+.slash-text {
+  display: grid;
+  min-width: 0;
+}
+
+.slash-label {
+  color: var(--ink);
+  font-weight: 550;
+}
+
+.slash-hint {
+  overflow: hidden;
+  color: var(--graphite);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
